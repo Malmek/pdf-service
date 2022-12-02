@@ -23,12 +23,20 @@ class PdfServiceApplicationTests {
   @Test
   public void testBasicUploadAndFetch() throws Exception {
     MockMultipartFile multipartFile = new MockMultipartFile("file", "testfile.pdf",
-                                                            "text/plain", "Spring Framework".getBytes());
+                                                            "pdf", "Spring Framework".getBytes());
     this.mvc.perform(multipart("/").file(multipartFile))
       .andExpect(status().isOk());
 
     this.mvc.perform(get("/")).andExpect(content().string("This is the file: testfile.pdf"));
 
+  }
+
+  @Test
+  public void testContentType() throws Exception {
+    MockMultipartFile multipartFile = new MockMultipartFile("file", "testfile.txt",
+                                                            "text/plain", "Spring Framework".getBytes());
+    this.mvc.perform(multipart("/").file(multipartFile))
+      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
   }
 
   @Test

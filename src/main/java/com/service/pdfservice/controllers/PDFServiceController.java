@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.service.pdfservice.FileManager;
 
@@ -15,31 +14,25 @@ import com.service.pdfservice.FileManager;
 public class PDFServiceController {
 
 
-  @GetMapping("/")
-  public String index() {
+  @GetMapping("/list")
+  public String listFiles() {
 
     if (FileManager.getFile() == null || FileManager.getFile().isEmpty()) {
-      return "no files yet";
+      return "There are no files yet";
     }
     return "This is the file: " + FileManager.getFile().getOriginalFilename();
   }
 
   @PostMapping("/")
-  public String handleFileUpload(@RequestParam("file") MultipartFile file,
-                                 RedirectAttributes redirectAttributes) {
-
+  public String handleFileUpload(@RequestParam("file") MultipartFile file) {
   try {
     FileManager.save(file);
-    redirectAttributes.addFlashAttribute("message",
-                                         "Upload successful: " + file.getOriginalFilename());
   } catch (Exception e) {
+    System.out.println(e.getMessage());
     throw new ResponseStatusException(
       HttpStatus.BAD_REQUEST, e.getMessage());
   }
 
   return HttpStatus.OK.toString();
-
   }
-
-
 }
