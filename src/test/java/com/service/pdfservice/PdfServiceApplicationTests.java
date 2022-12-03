@@ -23,25 +23,30 @@ class PdfServiceApplicationTests {
   @Test
   public void testBasicUploadAndFetch() throws Exception {
     MockMultipartFile multipartFile = new MockMultipartFile("file", "testfile.pdf",
-                                                            "pdf", "Spring Framework".getBytes());
+                                                            "application/pdf", "Some PDF File".getBytes());
     this.mvc.perform(multipart("/").file(multipartFile))
       .andExpect(status().isOk());
 
-    this.mvc.perform(get("/")).andExpect(content().string("This is the file: testfile.pdf"));
+    this.mvc.perform(get("/files")).andExpect(content().string("This is the file: testfile.pdf"));
+
+    this.mvc.perform(get("/files/testfile.pdf")).andExpect(status().isOk());
 
   }
-
   @Test
-  public void testContentType() throws Exception {
-    MockMultipartFile multipartFile = new MockMultipartFile("file", "testfile.txt",
-                                                            "text/plain", "Spring Framework".getBytes());
-    this.mvc.perform(multipart("/").file(multipartFile))
+  public void testUploadNoFile() throws Exception {
+    this.mvc.perform(multipart("/"))
       .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
   }
-
   @Test
   public void testUploadEmptyFile() throws Exception {
     MockMultipartFile multipartFile = new MockMultipartFile("file", (byte[]) null);
+    this.mvc.perform(multipart("/").file(multipartFile))
+      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+  }
+  @Test
+  public void testContentType() throws Exception {
+    MockMultipartFile multipartFile = new MockMultipartFile("file", "testfile.txt",
+                                                            "text/plain", "Some Text File".getBytes());
     this.mvc.perform(multipart("/").file(multipartFile))
       .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
   }
