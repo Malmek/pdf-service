@@ -1,6 +1,7 @@
 package com.service.pdfservice;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
@@ -11,7 +12,6 @@ import com.service.pdfservice.utils.FileUtils;
 import com.service.pdfservice.utils.ValidationResult;
 
 public class FileManager {
-  private static PDFFile pdfFile;
 
   public static void save(MultipartFile file) throws RuntimeException{
     ValidationResult validationResult = FileUtils.validatePDF(file);
@@ -26,21 +26,22 @@ public class FileManager {
 
   @Nullable
   public static PDFFile getPDFFile(String filename) {
-    if (filename.equals(pdfFile.name)){
-      return pdfFile;
+    if (filename != null) {
+      return InMemoryDB.getPdf(filename);
     }
     return null;
   }
   @Nullable
-  public static PDFFile getPDFFiles() {
-    return pdfFile;
+  public static Set<PDFFile> getPDFFiles() {
+    return InMemoryDB.getAllPdfs();
   }
 
   public static void storePDF(MultipartFile file) {
     String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
     try {
-      pdfFile = new PDFFile(fileName, file.getBytes());
+      PDFFile pdfFile = new PDFFile(fileName, file.getBytes());
+      InMemoryDB.storePdf(pdfFile);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

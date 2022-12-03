@@ -20,6 +20,7 @@ class PdfServiceApplicationTests {
   @Autowired
   private MockMvc mvc;
 
+  // Happy flow
   @Test
   public void testBasicUploadAndFetch() throws Exception {
     MockMultipartFile multipartFile = new MockMultipartFile("file", "testfile.pdf",
@@ -32,6 +33,8 @@ class PdfServiceApplicationTests {
     this.mvc.perform(get("/files/testfile.pdf")).andExpect(status().isOk());
 
   }
+
+  // Upload
   @Test
   public void testUploadNoFile() throws Exception {
     this.mvc.perform(multipart("/"))
@@ -49,6 +52,13 @@ class PdfServiceApplicationTests {
                                                             "text/plain", "Some Text File".getBytes());
     this.mvc.perform(multipart("/").file(multipartFile))
       .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+  }
+
+  // Download
+
+  @Test
+  public void testDownloadNonExistingFile() throws Exception {
+    this.mvc.perform(get("/files/testfile.pdf")).andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
   }
 
 }

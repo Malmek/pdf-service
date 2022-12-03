@@ -1,5 +1,7 @@
 package com.service.pdfservice.controllers;
 
+import java.util.Set;
+
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -23,11 +25,11 @@ public class PDFServiceController {
 
   @GetMapping("/files")
   public String listFiles() {
-    PDFFile files = FileManager.getPDFFiles();
+    Set<PDFFile> files = FileManager.getPDFFiles();
     if (files == null) {
       return "There are no files yet";
     }
-    return "This is the file: " + files.name;
+    return "This is the file: " + files.stream().findFirst().map(pdf -> pdf.name).get();
   }
 
   @GetMapping("/files/{filename}")
