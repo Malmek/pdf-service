@@ -110,7 +110,7 @@ class PdfServiceApplicationTests {
 
   @Test
   public void testDownloadNonExistingFile() throws Exception {
-    this.mvc.perform(get("/download/5")).andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+    this.mvc.perform(get("/download/5")).andExpect(status().is(HttpStatus.NOT_FOUND.value()))
       .andExpect(status().reason("No file with id: 5"));
   }
 }
