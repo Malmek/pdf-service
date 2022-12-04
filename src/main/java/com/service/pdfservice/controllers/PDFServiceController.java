@@ -27,9 +27,6 @@ public class PDFServiceController {
   @GetMapping("/uploads")
   public ResponseEntity<Map<Long, String>> listFiles() {
     Map<Long, PDFFile> files = FileManager.getPDFFiles();
-    if (files == null || files.isEmpty()) {
-      return new ResponseEntity<>(Map.of(), HttpStatus.OK);
-    }
     Map<Long, String> collect = files.entrySet().stream().collect(Collectors.toMap(Entry::getKey, k -> k.getValue().name));
     return new ResponseEntity<>(collect, HttpStatus.OK);
   }
@@ -40,7 +37,7 @@ public class PDFServiceController {
     PDFFile pDFFile = FileManager.getPDFFile(fileId);
     if (pDFFile == null) {
       throw new ResponseStatusException(
-        HttpStatus.BAD_REQUEST, "No file with id: " + fileId);
+        HttpStatus.NOT_FOUND, "No file with id: " + fileId);
     }
     return ResponseEntity.ok()
       .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pDFFile.name + "\"")

@@ -21,7 +21,9 @@ public class FileManager {
       }
       case EMPTY_FILE -> throw new IllegalArgumentException("File is empty");
       case INVALID_CONTENT_TYPE -> throw new IllegalArgumentException("Not a valid PDF");
-      case DUPLICATE -> throw new IllegalStateException("File already exists");
+      case INVALID_FILE_CONTENT -> throw new IllegalArgumentException("Invalid file content");
+      case DUPLICATE -> throw new IllegalArgumentException("File already exists");
+      case FILE_TOO_LARGE -> throw new IllegalArgumentException("File size too large");
       default -> throw new RuntimeException("Unknown error occurred");
     }
   }
@@ -34,7 +36,6 @@ public class FileManager {
     return null;
   }
 
-  @Nullable
   public static Map<Long, PDFFile> getPDFFiles() {
     return InMemoryDB.getAllPdfs();
   }

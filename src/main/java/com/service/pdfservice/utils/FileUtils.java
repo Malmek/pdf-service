@@ -13,6 +13,7 @@ import com.service.pdfservice.model.PDFFile;
 
 public class FileUtils {
   private static final String PDF_CONTENT_TYPE = "application/pdf";
+  private static final int PDF_MAX_BYTE_SIZE = 2_000_000;
   public static ValidationResult validatePDF(MultipartFile file) {
     if (file.isEmpty()) {
       return ValidationResult.EMPTY_FILE;
@@ -27,6 +28,10 @@ public class FileUtils {
       fileContent = file.getBytes();
     } catch (IOException e) {
       return ValidationResult.INVALID_FILE_CONTENT;
+    }
+
+    if (file.getSize() > PDF_MAX_BYTE_SIZE) {
+      return ValidationResult.FILE_TOO_LARGE;
     }
 
     if (!isUnique(fileName, fileContent)) {
