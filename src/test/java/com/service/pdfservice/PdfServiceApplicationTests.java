@@ -1,5 +1,6 @@
 package com.service.pdfservice;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,9 +21,14 @@ class PdfServiceApplicationTests {
   @Autowired
   private MockMvc mvc;
 
+  @BeforeEach
+  public void init() {
+    InMemoryDB.clear();
+  }
+
   // Happy flow
   @Test
-  public void testBasicUploadAndFetch() throws Exception {
+  public void testBasicUploadAndFetch(@Autowired MockMvc mvc) throws Exception {
     MockMultipartFile file = new MockMultipartFile("file", "testfile.pdf",
                                                    "application/pdf", "Some PDF File".getBytes());
     this.mvc.perform(multipart("/").file(file))

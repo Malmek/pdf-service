@@ -25,4 +25,9 @@ public class InMemoryDB {
     persistedPDFs.put(index, pdf);
     index++;
   }
+
+  public static void clear() {
+    persistedPDFs = new HashMap<>();
+    index = 0;
+  }
 }

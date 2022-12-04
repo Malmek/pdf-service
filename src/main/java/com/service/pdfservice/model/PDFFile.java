@@ -10,14 +10,4 @@ public class PDFFile {
     this.name = name;
     this.filecontent = filecontent;
   }
-
-  private String getChecksum() {
-    byte[] bytes = filecontent;
-
-    StringBuilder sb = new StringBuilder();
-    for (byte aByte : bytes) {
-      sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
-    }
-    return sb.toString();
-  }
 }

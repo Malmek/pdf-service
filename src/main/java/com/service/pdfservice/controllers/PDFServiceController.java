@@ -31,7 +31,6 @@ public class PDFServiceController {
       return new ResponseEntity<>(Map.of(), HttpStatus.OK);
     }
     Map<Long, String> collect = files.entrySet().stream().collect(Collectors.toMap(Entry::getKey, k -> k.getValue().name));
-
     return new ResponseEntity<>(collect, HttpStatus.OK);
   }
 
