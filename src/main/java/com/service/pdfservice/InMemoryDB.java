@@ -21,9 +21,11 @@ public class InMemoryDB {
     return persistedPDFs.get(id);
   }
 
-  public static void storePdf(PDFFile pdf) {
+  public static long storePdf(PDFFile pdf) {
     persistedPDFs.put(index, pdf);
     index++;
+    //ugly fake db hack
+    return index - 1;
   }
 
   public static void clear() {

@@ -31,62 +31,66 @@ class PdfServiceApplicationTests {
   public void testBasicUploadAndFetch(@Autowired MockMvc mvc) throws Exception {
     MockMultipartFile file = new MockMultipartFile("file", "testfile.pdf",
                                                    "application/pdf", "Some PDF File".getBytes());
-    this.mvc.perform(multipart("/").file(file))
+    this.mvc.perform(multipart("/upload/").file(file))
       .andExpect(status().isOk());
 
-    this.mvc.perform(get("/files")).andExpect(content().string("{\"0\":\"testfile.pdf\"}"));
+    this.mvc.perform(get("/uploads")).andExpect(content().string("{\"0\":\"testfile.pdf\"}"));
 
-    this.mvc.perform(get("/files/0")).andExpect(status().isOk());
+    this.mvc.perform(get("/download/0")).andExpect(status().isOk());
   }
 
   // Upload
   @Test
   public void testUploadNoFile() throws Exception {
-    this.mvc.perform(multipart("/"))
-      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+    this.mvc.perform(multipart("/upload/"))
+      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+      .andExpect(status().reason("Required part 'file' is not present."));
   }
   @Test
   public void testUploadEmptyFile() throws Exception {
     MockMultipartFile emptyFile = new MockMultipartFile("file", (byte[]) null);
-    this.mvc.perform(multipart("/").file(emptyFile))
-      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+    this.mvc.perform(multipart("/upload/").file(emptyFile))
+      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+      .andExpect(status().reason("File is empty"));
   }
 
   @Test
   public void testContentType() throws Exception {
     MockMultipartFile textFile = new MockMultipartFile("file", "testfile.txt",
                                                        "text/plain", "Some Text File".getBytes());
-    this.mvc.perform(multipart("/").file(textFile))
-      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+    this.mvc.perform(multipart("/upload/").file(textFile))
+      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+      .andExpect(status().reason("Not a valid PDF"));
   }
 
   @Test
   public void testIncrementingIndexes() throws Exception {
     MockMultipartFile file = new MockMultipartFile("file", "testfile.pdf",
                                                    "application/pdf", "Some PDF File".getBytes());
-    this.mvc.perform(multipart("/").file(file))
+    this.mvc.perform(multipart("/upload/").file(file))
       .andExpect(status().isOk());
 
     MockMultipartFile anotherFile = new MockMultipartFile("file", "testfile2.pdf",
                                                           "application/pdf", "Another PDF File".getBytes());
-    this.mvc.perform(multipart("/").file(anotherFile))
+    this.mvc.perform(multipart("/upload/").file(anotherFile))
       .andExpect(status().isOk());
 
-    this.mvc.perform(get("/files")).andExpect(content().string("{\"0\":\"testfile.pdf\",\"1\":\"testfile2.pdf\"}"));
+    this.mvc.perform(get("/uploads")).andExpect(content().string("{\"0\":\"testfile.pdf\",\"1\":\"testfile2.pdf\"}"));
 
-    this.mvc.perform(get("/files/0")).andExpect(status().isOk());
-    this.mvc.perform(get("/files/1")).andExpect(status().isOk());
+    this.mvc.perform(get("/download/0")).andExpect(status().isOk());
+    this.mvc.perform(get("/download/1")).andExpect(status().isOk());
   }
 
   @Test
   public void testUploadDuplicate() throws Exception {
     MockMultipartFile file = new MockMultipartFile("file", "testfile.pdf",
                                                    "application/pdf", "Some PDF File".getBytes());
-    this.mvc.perform(multipart("/").file(file))
+    this.mvc.perform(multipart("/upload/").file(file))
       .andExpect(status().isOk());
 
-    this.mvc.perform(multipart("/").file(file))
-      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+    this.mvc.perform(multipart("/upload/").file(file))
+      .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+      .andExpect(status().reason("File already exists"));
   }
 
   @Test
@@ -95,10 +99,10 @@ class PdfServiceApplicationTests {
                                                    "application/pdf", "Some PDF File".getBytes());
     MockMultipartFile similarFile = new MockMultipartFile("file", "testfile.pdf",
                                                           "application/pdf", "Some PDF File with different content".getBytes());
-    this.mvc.perform(multipart("/").file(file))
+    this.mvc.perform(multipart("/upload/").file(file))
       .andExpect(status().isOk());
 
-    this.mvc.perform(multipart("/").file(similarFile))
+    this.mvc.perform(multipart("/upload/").file(similarFile))
       .andExpect(status().isOk());
   }
 
@@ -106,6 +110,7 @@ class PdfServiceApplicationTests {
 
   @Test
   public void testDownloadNonExistingFile() throws Exception {
-    this.mvc.perform(get("/files/testfile.pdf")).andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+    this.mvc.perform(get("/download/5")).andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+      .andExpect(status().reason("No file with id: 5"));
   }
 }

@@ -24,7 +24,7 @@ import com.service.pdfservice.model.PDFFile;
 @RestController
 public class PDFServiceController {
 
-  @GetMapping("/files")
+  @GetMapping("/uploads")
   public ResponseEntity<Map<Long, String>> listFiles() {
     Map<Long, PDFFile> files = FileManager.getPDFFiles();
     if (files == null || files.isEmpty()) {
@@ -34,7 +34,7 @@ public class PDFServiceController {
     return new ResponseEntity<>(collect, HttpStatus.OK);
   }
 
-  @GetMapping("/files/{fileId}")
+  @GetMapping("/download/{fileId}")
   @ResponseBody
   public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
     PDFFile pDFFile = FileManager.getPDFFile(fileId);
@@ -47,15 +47,15 @@ public class PDFServiceController {
       .body(new ByteArrayResource(pDFFile.filecontent));
   }
 
-  @PostMapping("/")
-  public String handleFileUpload(@RequestParam("file") MultipartFile file) {
-  try {
-    FileManager.save(file);
-  } catch (Exception e) {
-    throw new ResponseStatusException(
-      HttpStatus.BAD_REQUEST, e.getMessage());
-  }
-
-  return HttpStatus.OK.toString();
+  @PostMapping("/upload/")
+  public ResponseEntity<Map<Long, String>> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    try {
+      long id = FileManager.save(file);
+      PDFFile pDFFile = FileManager.getPDFFile(id);
+      return new ResponseEntity<>(Map.of(id, pDFFile.name), HttpStatus.OK);
+    } catch (Exception e) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST, e.getMessage());
+    }
   }
 }

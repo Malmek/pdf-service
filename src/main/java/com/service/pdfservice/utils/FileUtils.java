@@ -43,7 +43,7 @@ public class FileUtils {
     for (PDFFile currentPdf : currentPdfs) {
       if (currentPdf.name.equalsIgnoreCase(newFileName) &&
           generateChecksum(currentPdf.filecontent).equals(generateChecksum(newFileContent))) {
-        return false;
+          return false;
       }
     }
     return true;

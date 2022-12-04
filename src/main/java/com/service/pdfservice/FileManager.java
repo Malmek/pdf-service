@@ -12,13 +12,16 @@ import com.service.pdfservice.utils.ValidationResult;
 
 public class FileManager {
 
-  public static void save(MultipartFile file) throws RuntimeException{
+  public static long save(MultipartFile file) throws RuntimeException {
     ValidationResult validationResult = FileUtils.validatePDF(file);
 
     switch (validationResult) {
-      case SUCCESS -> storePDF(file);
+      case SUCCESS -> {
+        return storePDF(file);
+      }
       case EMPTY_FILE -> throw new IllegalArgumentException("File is empty");
       case INVALID_CONTENT_TYPE -> throw new IllegalArgumentException("Not a valid PDF");
+      case DUPLICATE -> throw new IllegalStateException("File already exists");
       default -> throw new RuntimeException("Unknown error occurred");
     }
   }
@@ -36,10 +39,10 @@ public class FileManager {
     return InMemoryDB.getAllPdfs();
   }
 
-  public static void storePDF(MultipartFile file) {
+  public static long storePDF(MultipartFile file) {
     try {
       PDFFile pdfFile = new PDFFile(file.getOriginalFilename(), file.getBytes());
-      InMemoryDB.storePdf(pdfFile);
+      return InMemoryDB.storePdf(pdfFile);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
