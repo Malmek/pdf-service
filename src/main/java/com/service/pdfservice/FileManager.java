@@ -1,10 +1,9 @@
 package com.service.pdfservice;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.Map;
 
 import org.springframework.lang.Nullable;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.service.pdfservice.model.PDFFile;
@@ -25,22 +24,21 @@ public class FileManager {
   }
 
   @Nullable
-  public static PDFFile getPDFFile(String filename) {
-    if (filename != null) {
-      return InMemoryDB.getPdf(filename);
+  public static PDFFile getPDFFile(Long id) {
+    if (id != null) {
+      return InMemoryDB.getPdf(id);
     }
     return null;
   }
+
   @Nullable
-  public static Set<PDFFile> getPDFFiles() {
+  public static Map<Long, PDFFile> getPDFFiles() {
     return InMemoryDB.getAllPdfs();
   }
 
   public static void storePDF(MultipartFile file) {
-    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-
     try {
-      PDFFile pdfFile = new PDFFile(fileName, file.getBytes());
+      PDFFile pdfFile = new PDFFile(file.getOriginalFilename(), file.getBytes());
       InMemoryDB.storePdf(pdfFile);
     } catch (IOException e) {
       throw new RuntimeException(e);

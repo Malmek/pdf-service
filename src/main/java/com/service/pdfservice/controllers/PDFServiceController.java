@@ -1,6 +1,8 @@
 package com.service.pdfservice.controllers;
 
-import java.util.Set;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -22,23 +24,24 @@ import com.service.pdfservice.model.PDFFile;
 @RestController
 public class PDFServiceController {
 
-
   @GetMapping("/files")
-  public String listFiles() {
-    Set<PDFFile> files = FileManager.getPDFFiles();
-    if (files == null) {
-      return "There are no files yet";
+  public ResponseEntity<Map<Long, String>> listFiles() {
+    Map<Long, PDFFile> files = FileManager.getPDFFiles();
+    if (files == null || files.isEmpty()) {
+      return new ResponseEntity<>(Map.of(), HttpStatus.OK);
     }
-    return "This is the file: " + files.stream().findFirst().map(pdf -> pdf.name).get();
+    Map<Long, String> collect = files.entrySet().stream().collect(Collectors.toMap(Entry::getKey, k -> k.getValue().name));
+
+    return new ResponseEntity<>(collect, HttpStatus.OK);
   }
 
-  @GetMapping("/files/{filename}")
+  @GetMapping("/files/{fileId}")
   @ResponseBody
-  public ResponseEntity<Resource> downloadFile(@PathVariable String filename) {
-    PDFFile pDFFile = FileManager.getPDFFile(filename);
+  public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
+    PDFFile pDFFile = FileManager.getPDFFile(fileId);
     if (pDFFile == null) {
       throw new ResponseStatusException(
-        HttpStatus.BAD_REQUEST, "No file with name: " + filename);
+        HttpStatus.BAD_REQUEST, "No file with id: " + fileId);
     }
     return ResponseEntity.ok()
       .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pDFFile.name + "\"")
